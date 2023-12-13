@@ -10,7 +10,18 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <errno.h>
-#include "../Config/Config.h"
+
+/*Definition des constantes*/
+
+#define CHARN '\0'
+#define SPACE " "
+#define ALLOC 64
+#define TEMP 1024
+#ifdef _WIN32
+    #define PATH "D:/Université/Système et réseaux/Systeme/Gros projet/ProjetSyst_ABE/doc/Trains.txt"
+#elif __unix__
+    #define PATH "/mnt/d/Trains.txt"
+#endif
 
 /*Definition des fonctions*/
 

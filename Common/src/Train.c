@@ -1,4 +1,4 @@
-#include "../Structure/Train.h"
+#include "../headers/Train.h"
 
 /******************************************************************
  * Requete.c contient l'ensemble des fonctions permettant la 
@@ -52,12 +52,12 @@ struct Train * stockageTrain(){
                         break;
                     case 3:
                         token = strtok(NULL, ":");
-                        C[i].heureD.hours = atoi(token);
+                        C[i].heureD.heure = atoi(token);
                         token = strtok(NULL, VIRG);
                         C[i].heureD.minutes = atoi(token);
                     case 4:
                         token = strtok(NULL, ":"); 
-                        C[i].heureA.hours = atoi(token);  
+                        C[i].heureA.heure = atoi(token);  
                         token = strtok(NULL, VIRG);
                         C[i].heureA.minutes = atoi(token);
                     case 5:
@@ -147,7 +147,7 @@ retour:
             B = C[i+1];
 retourner:
             while(i != Trlen(C)){
-                if (DiffHours(A.heureD,B.heureD) < 0){
+                if (diffH(A.heureD,B.heureD) < 0){
                     if (j == 0){
                         table[j] = i;
                         j++;
@@ -155,14 +155,14 @@ retourner:
                     }
                     i++;
                     B = C[i];
-                }else if(DiffHours(A.heureD,B.heureD) > 0){
+                }else if(diffH(A.heureD,B.heureD) > 0){
                     A = B;
                     i++;
                     B = C[i];
                     j = 0;
                     goto vidage;
                 }else{
-                    if (DiffMinutes(A.heureD, B.heureD) < 0){
+                    if (diffM(A.heureD, B.heureD) < 0){
                         if (j == 0){
                             table[j] = i;
                             j++;
@@ -170,7 +170,7 @@ retourner:
                         }
                         i++;
                         B = C[i];
-                    }else if (DiffMinutes(A.heureD, B.heureD) > 0){
+                    }else if (diffM(A.heureD, B.heureD) > 0){
                         A = B;
                         i++;
                         B = C[i];
@@ -195,9 +195,9 @@ retourner:
         list[m].id = C[table[m]].id;
         strcpy(list[m].depart, C[table[m]].depart);
         strcpy(list[m].arrive, C[table[m]].arrive);
-        list[m].heureD.hours = C[table[m]].heureD.hours;
+        list[m].heureD.heure = C[table[m]].heureD.heure;
         list[m].heureD.minutes = C[table[m]].heureD.minutes;
-        list[m].heureA.hours = C[table[m]].heureA.hours;
+        list[m].heureA.heure = C[table[m]].heureA.heure;
         list[m].heureA.minutes = C[table[m]].heureA.minutes;
         list[m].prix = C[table[m]].prix;
         strcpy(list[m].RS, C[table[m]].RS);
@@ -223,10 +223,10 @@ struct Train findTrain(struct Train * C, char ** D){
     int i = 0;
     struct Train solution;
     solution.id = 1010101;
-    Time Tclient;
+    struct temps Tclient;
     char *token;
     token = strtok(D[2], ":");
-    Tclient.hours = atoi(token);
+    Tclient.heure = atoi(token);
     token = strtok(NULL, ":");
     Tclient.minutes = atoi(token);
     while(i != (Trlen(C)-1)){
@@ -237,7 +237,7 @@ struct Train findTrain(struct Train * C, char ** D){
             strcpy(D[1], "Paris Gare de Lyon");
         }
         if(strcmp(C[i].depart, D[0]) == 0){
-            if(Equals(Tclient, C[i].heureD) == 0){
+            if(sameT(Tclient, C[i].heureD) == 0){
                 if(strcmp(C[i].arrive, D[1]) == 0){
                     solution = C[i];
                     return solution;
@@ -245,7 +245,7 @@ struct Train findTrain(struct Train * C, char ** D){
             }
         }else{
             if(strcmp(C[i].arrive, D[1]) == 0){
-                if(Equals(Tclient, C[i].heureD) == 0){
+                if(sameT(Tclient, C[i].heureD) == 0){
                     solution = C[i];
                 }
             }
@@ -264,8 +264,8 @@ struct Train * findLTrain(struct Train * C, char ** D){
     struct Train * list2 = (struct Train *)malloc(sizeof(struct Train)*Trlen(C));
     int i = 0;
     int j = 0;
-    Time debut = Convert(D[2]);
-    Time fin = Convert(D[3]);
+    struct temps debut = ctot(D[2]);
+    struct temps fin = ctot(D[3]);
     while(i != Trlen(C)){
         if (strcmp(D[0], "Paris") == 0){
             strcpy(D[0], "Paris Gare de Lyon");
@@ -278,9 +278,9 @@ struct Train * findLTrain(struct Train * C, char ** D){
                 list[j].id = C[i].id;
                 strcpy(list[j].depart, C[i].depart);
                 strcpy(list[j].arrive, C[i].arrive);
-                list[j].heureD.hours = C[i].heureD.hours;
+                list[j].heureD.heure = C[i].heureD.heure;
                 list[j].heureD.minutes = C[i].heureD.minutes;
-                list[j].heureA.hours = C[i].heureA.hours;
+                list[j].heureA.heure = C[i].heureA.heure;
                 list[j].heureA.minutes = C[i].heureA.minutes;
                 list[j].prix = C[i].prix;
                 strcpy(list[j].RS, C[i].RS);
@@ -293,112 +293,112 @@ struct Train * findLTrain(struct Train * C, char ** D){
     i = 0;
     j = 0;
     while(i != Trlen(list)){
-        if (DiffHours(debut, list[i].heureD) < 0){
-            if (DiffHours(list[i].heureD, fin) < 0){
+        if (diffH(debut, list[i].heureD) < 0){
+            if (diffH(list[i].heureD, fin) < 0){
                 list2[j].id = list[i].id;
                 strcpy(list2[j].depart, list[i].depart);
                 strcpy(list2[j].arrive, list[i].arrive);
-                list2[j].heureD.hours = list[i].heureD.hours;
+                list2[j].heureD.heure = list[i].heureD.heure;
                 list2[j].heureD.minutes = list[i].heureD.minutes;
-                list2[j].heureA.hours = list[i].heureA.hours;
+                list2[j].heureA.heure = list[i].heureA.heure;
                 list2[j].heureA.minutes = list[i].heureA.minutes;
                 list2[j].prix = list[i].prix;
                 strcpy(list2[j].RS, list[i].RS);
                 j++;
-            }else if (DiffHours(list[i].heureD, fin) == 0){
-                if (DiffMinutes(list[i].heureD, fin) < 0){
+            }else if (diffH(list[i].heureD, fin) == 0){
+                if (diffM(list[i].heureD, fin) < 0){
                     list2[j].id = list[i].id;
                     strcpy(list2[j].depart, list[i].depart);
                     strcpy(list2[j].arrive, list[i].arrive);
-                    list2[j].heureD.hours = list[i].heureD.hours;
+                    list2[j].heureD.heure = list[i].heureD.heure;
                     list2[j].heureD.minutes = list[i].heureD.minutes;
-                    list2[j].heureA.hours = list[i].heureA.hours;
+                    list2[j].heureA.heure = list[i].heureA.heure;
                     list2[j].heureA.minutes = list[i].heureA.minutes;
                     list2[j].prix = list[i].prix;
                     strcpy(list2[j].RS, list[i].RS);
                     j++;    
-                }else if (DiffMinutes(list[i].heureD, fin) == 0){
+                }else if (diffM(list[i].heureD, fin) == 0){
                     list2[j].id = list[i].id;
                     strcpy(list2[j].depart, list[i].depart);
                     strcpy(list2[j].arrive, list[i].arrive);
-                    list2[j].heureD.hours = list[i].heureD.hours;
+                    list2[j].heureD.heure = list[i].heureD.heure;
                     list2[j].heureD.minutes = list[i].heureD.minutes;
-                    list2[j].heureA.hours = list[i].heureA.hours;
+                    list2[j].heureA.heure = list[i].heureA.heure;
                     list2[j].heureA.minutes = list[i].heureA.minutes;
                     list2[j].prix = list[i].prix;
                     strcpy(list2[j].RS, list[i].RS);
                     j++;
                 }
             }
-        }else if (DiffHours(debut, list[i].heureD) == 0){
-            if (DiffMinutes(debut, list[i].heureD) < 0){
-                if (DiffHours(list[i].heureD, fin) < 0){
+        }else if (diffH(debut, list[i].heureD) == 0){
+            if (diffM(debut, list[i].heureD) < 0){
+                if (diffH(list[i].heureD, fin) < 0){
                     list2[j].id = list[i].id;
                     strcpy(list2[j].depart, list[i].depart);
                     strcpy(list2[j].arrive, list[i].arrive);
-                    list2[j].heureD.hours = list[i].heureD.hours;
+                    list2[j].heureD.heure = list[i].heureD.heure;
                     list2[j].heureD.minutes = list[i].heureD.minutes;
-                    list2[j].heureA.hours = list[i].heureA.hours;
+                    list2[j].heureA.heure = list[i].heureA.heure;
                     list2[j].heureA.minutes = list[i].heureA.minutes;
                     list2[j].prix = list[i].prix;
                     strcpy(list2[j].RS, list[i].RS);
                     j++; 
-                }else if (DiffHours(list[i].heureD, fin) == 0){
-                    if (DiffMinutes(list[i].heureD, fin) < 0){
+                }else if (diffH(list[i].heureD, fin) == 0){
+                    if (diffM(list[i].heureD, fin) < 0){
                         list2[j].id = list[i].id;
                         strcpy(list2[j].depart, list[i].depart);
                         strcpy(list2[j].arrive, list[i].arrive);
-                        list2[j].heureD.hours = list[i].heureD.hours;
+                        list2[j].heureD.heure = list[i].heureD.heure;
                         list2[j].heureD.minutes = list[i].heureD.minutes;
-                        list2[j].heureA.hours = list[i].heureA.hours;
+                        list2[j].heureA.heure = list[i].heureA.heure;
                         list2[j].heureA.minutes = list[i].heureA.minutes;
                         list2[j].prix = list[i].prix;
                         strcpy(list2[j].RS, list[i].RS);
                         j++; 
-                    }else if (DiffMinutes(list[i].heureD, fin) == 0){
+                    }else if (diffM(list[i].heureD, fin) == 0){
                         list2[j].id = list[i].id;
                         strcpy(list2[j].depart, list[i].depart);
                         strcpy(list2[j].arrive, list[i].arrive);
-                        list2[j].heureD.hours = list[i].heureD.hours;
+                        list2[j].heureD.heure = list[i].heureD.heure;
                         list2[j].heureD.minutes = list[i].heureD.minutes;
-                        list2[j].heureA.hours = list[i].heureA.hours;
+                        list2[j].heureA.heure = list[i].heureA.heure;
                         list2[j].heureA.minutes = list[i].heureA.minutes;
                         list2[j].prix = list[i].prix;
                         strcpy(list2[j].RS, list[i].RS);
                         j++; 
                     }  
                 }  
-            }else if (DiffMinutes(debut, list[i].heureD) == 0){
-                if (DiffHours(list[i].heureD, fin) < 0){
+            }else if (diffM(debut, list[i].heureD) == 0){
+                if (diffH(list[i].heureD, fin) < 0){
                     list2[j].id = list[i].id;
                     strcpy(list2[j].depart, list[i].depart);
                     strcpy(list2[j].arrive, list[i].arrive);
-                    list2[j].heureD.hours = list[i].heureD.hours;
+                    list2[j].heureD.heure = list[i].heureD.heure;
                     list2[j].heureD.minutes = list[i].heureD.minutes;
-                    list2[j].heureA.hours = list[i].heureA.hours;
+                    list2[j].heureA.heure = list[i].heureA.heure;
                     list2[j].heureA.minutes = list[i].heureA.minutes;
                     list2[j].prix = list[i].prix;
                     strcpy(list2[j].RS, list[i].RS);
                     j++; 
-                }else if (DiffHours(list[i].heureD, fin) == 0){
-                    if (DiffMinutes(list[i].heureD, fin) < 0){
+                }else if (diffH(list[i].heureD, fin) == 0){
+                    if (diffM(list[i].heureD, fin) < 0){
                         list2[j].id = list[i].id;
                         strcpy(list2[j].depart, list[i].depart);
                         strcpy(list2[j].arrive, list[i].arrive);
-                        list2[j].heureD.hours = list[i].heureD.hours;
+                        list2[j].heureD.heure = list[i].heureD.heure;
                         list2[j].heureD.minutes = list[i].heureD.minutes;
-                        list2[j].heureA.hours = list[i].heureA.hours;
+                        list2[j].heureA.heure = list[i].heureA.heure;
                         list2[j].heureA.minutes = list[i].heureA.minutes;
                         list2[j].prix = list[i].prix;
                         strcpy(list2[j].RS, list[i].RS);
                         j++; 
-                    }else if (DiffMinutes(list[i].heureD, fin) == 0){
+                    }else if (diffM(list[i].heureD, fin) == 0){
                         list2[j].id = list[i].id;
                         strcpy(list2[j].depart, list[i].depart);
                         strcpy(list2[j].arrive, list[i].arrive);
-                        list2[j].heureD.hours = list[i].heureD.hours;
+                        list2[j].heureD.heure = list[i].heureD.heure;
                         list2[j].heureD.minutes = list[i].heureD.minutes;
-                        list2[j].heureA.hours = list[i].heureA.hours;
+                        list2[j].heureA.heure = list[i].heureA.heure;
                         list2[j].heureA.minutes = list[i].heureA.minutes;
                         list2[j].prix = list[i].prix;
                         strcpy(list2[j].RS, list[i].RS);
@@ -431,9 +431,9 @@ struct Train * findAllTrain(struct Train * C, char ** D){
                 list[j].id = C[i].id;
                 strcpy(list[j].depart, C[i].depart);
                 strcpy(list[j].arrive, C[i].arrive);
-                list[j].heureD.hours = C[i].heureD.hours;
+                list[j].heureD.heure = C[i].heureD.heure;
                 list[j].heureD.minutes = C[i].heureD.minutes;
-                list[j].heureA.hours = C[i].heureA.hours;
+                list[j].heureA.heure = C[i].heureA.heure;
                 list[j].heureA.minutes = C[i].heureA.minutes;
                 list[j].prix = C[i].prix;
                 strcpy(list[j].RS, C[i].RS);

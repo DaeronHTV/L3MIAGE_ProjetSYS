@@ -13,7 +13,9 @@
 #include <dirent.h>
 #include <netdb.h>
 #include "../headers/Train.h"
-#include "../Config/Config.h"
+#define PORT 7777
+#define SOCKET_ERROR -1
+#define MAX 50
 /** Header du fichier serveur:
  * 
  * L'attribut MAX est initialisé a 50 et sera utilisé dans les fonctions read et write.
