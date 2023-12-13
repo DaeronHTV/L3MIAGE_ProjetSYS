@@ -1,0 +1,24 @@
+CC = gcc
+OBJS = requete.o Reseau.o Temps.o Train.o
+EXEC = requete
+
+
+all: $(EXEC)
+
+$(EXEC): $(OBJS)
+	$(CC) -o  $(EXEC) requete.o 
+
+requete.o: requete.c ../Common/headers/requete.h 
+	$(CC) -Wall -c requete.c
+
+Reseau.o: Reseau.c ../Common/headers/Reseau.h 
+	$(CC) -Wall -c Reseau.c
+	
+Temps.o: Temps.c ../Common/headers/Temps.h 
+	$(CC) -Wall -c Temps.c
+
+Train.o: Train.c ../Common/headers/Train.h
+	$(CC) -Wall -c Train.c
+clean:
+	@echo "on efface les fichiers objets"
+	rm -f *.o $(OBJS)

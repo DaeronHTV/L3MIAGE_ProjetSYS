@@ -1,0 +1,15 @@
+CC = gcc
+OBJ = Serveur
+PATH = /Common/
+
+all: $(OBJ)
+
+Serveur: Serveur.o 
+	$(CC) -o Serveur Serveur.o 
+
+Serveur.o: Serveur.c $(PATH)Serveur.h 
+	$(CC) -Wall -c Serveur.c
+
+clean:
+	@echo "on efface les fichiers objets"
+	rm -f *.o $(OBJ)
